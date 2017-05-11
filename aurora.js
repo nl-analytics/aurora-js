@@ -22,9 +22,15 @@ function getFingerprint() {
 		
 		var fingerprint = "";
 		
-		// TODO: investigate why strings are inconsistent lengths
 		for (var b of bytes) {
-			fingerprint += b.toString(16);
+			var str = b.toString(16);
+			
+			// Pad with zeroes
+			while (str.length < 2) {
+				str = "0" + str;
+			}
+			
+			fingerprint += str;
 		}
 		
 		console.log("FP: " + fingerprint);
