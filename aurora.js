@@ -76,13 +76,13 @@ function getFingerprint() {
 
 function sendData() {
 	
-	// TODO: separate resolution into H and W
-
 	// Basic info
 	var data = {
-		"res": window.screen.width + "x" + window.screen.height,
+		"resw": window.screen.width,
+		"resh": window.screen.height,
 		"den": window.devicePixelRatio,
-		"vpt": window.innerWidth + "x" + window.innerHeight,
+		"vptw": window.innerWidth,
+		"vpth": window.innerHeight,
 		"url": document.location.href,
 		"lng": navigator.language,
 		"nl_client": "ajs" + version
