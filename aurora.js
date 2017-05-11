@@ -1,9 +1,30 @@
 const endpoint = "http://localhost:3030/";
 const version = "100";
 
+const oneYear = 60 * 60 * 24 * 365;
+
+function setCookie(name, value, expiresIn) {
+	
+	var arguments = "";
+	
+	var date = new Date();
+	
+	date.setTime(date.getTime() + expiresIn * 1000);
+	
+	arguments += ";expires=" + date.toUTCString();
+	arguments += ";max-age=" + expiresIn;
+	
+	var cookieString = name + "=" + value + arguments + ";";
+	
+	document.cookie = cookieString;
+}
+
 function getFingerprint() {
 	
-	// TODO: check if cookie can be set
+	// check if cookie can be set
+	if (!navigator.cookieEnabled) {
+		return;
+	}
 	
 	// Search for aurora cookie
 	var cookies = document.cookie.split(";");
@@ -16,31 +37,41 @@ function getFingerprint() {
 	}
 	
 	// Generate a new fingerprint
-	if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
-		var bytes = new Uint8Array(8);
+	var crypto = window.crypto || window.msCrypto;
+		
+	var bytes;
+	
+	if (crypto && typeof crypto.getRandomValues === 'function') {
+		bytes = new Uint8Array(8);
 		window.crypto.getRandomValues(bytes);
+	} else {
+		// Use Math.random - not ideal, but workable
 		
-		var fingerprint = "";
+		bytes = [];
 		
-		for (var b of bytes) {
-			var str = b.toString(16);
-			
-			// Pad with zeroes
-			while (str.length < 2) {
-				str = "0" + str;
-			}
-			
-			fingerprint += str;
+		for (var i = 0; i < 8; i++) {
+			bytes[i] = Math.floor(Math.random() * 256);
+		}
+	}
+	
+	var fingerprint = "";
+	
+	for (var b of bytes) {
+		var str = b.toString(16);
+		
+		// Pad with zeroes
+		while (str.length < 2) {
+			str = "0" + str;
 		}
 		
-		console.log("FP: " + fingerprint);
-		
-		// setFingerprintCookie(fingerprint);
-		
-		return fingerprint;
-	} else {
-		return "";
+		fingerprint += str;
 	}
+	
+	console.log("FP: " + fingerprint);
+	
+	setCookie("aur", fingerprint, oneYear);
+	
+	return fingerprint;
 }
 
 function sendData() {
@@ -57,7 +88,11 @@ function sendData() {
 		"nl_client": "ajs" + version
 	};
 	
-	data["fpt"] = getFingerprint();
+	var fingerprint = getFingerprint();
+	
+	if (fingerprint) {
+		data["fpt"] = fingerprint;
+	}
 	
 	// Get referral url
 	if (document.referrer) {
