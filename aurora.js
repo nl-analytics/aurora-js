@@ -1,5 +1,7 @@
 const endpoint = "http://localhost:3030/";
 const version = "100";
+const account = "nltest";
+const property = "web";
 
 const oneYear = 60 * 60 * 24 * 365;
 
@@ -74,7 +76,7 @@ function getFingerprint() {
 	return fingerprint;
 }
 
-function sendData() {
+function sendData(action) {
 	
 	// Basic info
 	var data = {
@@ -85,7 +87,10 @@ function sendData() {
 		"vpth": window.innerHeight,
 		"url": document.location.href,
 		"lng": navigator.language,
-		"nl_client": "ajs" + version
+		"nl_client": "ajs" + version,
+		"acc": account,
+		"prop": property,
+		"act": action
 	};
 	
 	var fingerprint = getFingerprint();
@@ -114,4 +119,4 @@ function sendData() {
 	img.setAttribute("src", endpoint + queryString);
 }
 
-sendData();
+sendData("pv");
